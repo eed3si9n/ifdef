@@ -12,24 +12,12 @@ object IfDefPlugin extends AutoPlugin {
   object autoImport extends IfDefKeys
   import autoImport._
   lazy val ifDefVersion = BuildInfo.version
-  override lazy val globalSettings: Seq[Def.Setting[_]] = Seq(
+  override lazy val globalSettings: Seq[Def.Setting[_]] = List(
     ifDefDeclations := Nil,
   )
-  override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
+  override lazy val projectSettings: Seq[Def.Setting[_]] = List(
     libraryDependencies += "com.eed3si9n.ifdef" %% "ifdef-annotation" % ifDefVersion % Provided,
     libraryDependencies += compilerPlugin("com.eed3si9n.ifdef" %% "ifdef-plugin" % ifDefVersion),
-    Compile / ifDefDeclations += "compile",
-    Compile / scalacOptions ++= {
-      val sv = scalaVersion.value
-      val decls = (Compile / ifDefDeclations).value
-      toMacroSettings(sv, decls.toList)
-    },
-    Test / ifDefDeclations += "test",
-    Test / scalacOptions ++= {
-      val sv = scalaVersion.value
-      val decls = (Test / ifDefDeclations).value
-      toMacroSettings(sv, decls.toList)
-    },
     Test / managedSources ++= (Compile / sources).value,
     Test / internalDependencyClasspath := {
       val orig = (Test / internalDependencyClasspath).value
@@ -37,6 +25,24 @@ object IfDefPlugin extends AutoPlugin {
       orig.filter { x =>
         x.data != compileOut
       }
+    },
+  ) ++
+    inConfig(Compile)(configurationSettings) ++
+    inConfig(Test)(configurationSettings)
+
+  lazy val configurationSettings: Seq[Def.Setting[_]] = List(
+    ifDefDeclations := List(configuration.value.name),
+    scalacOptions --= {
+      val sv = scalaVersion.value
+      val ancestors = ancestorConfigs(configuration.value)
+      ancestors.flatMap { a =>
+        toMacroSettings(sv, List(a.name))
+      }
+    },
+    scalacOptions ++= {
+      val sv = scalaVersion.value
+      val decls = ifDefDeclations.value
+      toMacroSettings(sv, decls.toList)
     },
   )
 
@@ -49,6 +55,12 @@ object IfDefPlugin extends AutoPlugin {
       decls.flatMap { decl =>
         List(s"-Xmacro-settings:$macroSetting$decl")
       }
+  }
+
+  private def ancestorConfigs(config: Configuration) = {
+    def ancestors(configs: Vector[Configuration]): Vector[Configuration] =
+      configs ++ configs.flatMap(conf => ancestors(conf.extendsConfigs))
+    ancestors(config.extendsConfigs)
   }
 }
 
