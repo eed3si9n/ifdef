@@ -11,19 +11,13 @@ object IfDefPlugin extends AutoPlugin {
 
   object autoImport extends IfDefKeys
   import autoImport._
+  lazy val ifDefVersion = BuildInfo.version
   override lazy val globalSettings: Seq[Def.Setting[_]] = Seq(
     ifDefDeclations := Nil,
   )
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
-    Compile / scalacOptions ++= {
-      if (scalaVersion.value.startsWith("2.13")) List("-Ymacro-annotations")
-      else Nil
-    },
-    libraryDependencies += "com.eed3si9n.ifdef" %% "ifdef-macro" % BuildInfo.version,
-    libraryDependencies ++= {
-      if (scalaVersion.value.startsWith("2.12.")) List(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
-      else Nil
-    },
+    libraryDependencies += "com.eed3si9n.ifdef" %% "ifdef-annotation" % ifDefVersion % Provided,
+    libraryDependencies += compilerPlugin("com.eed3si9n.ifdef" %% "ifdef-plugin" % ifDefVersion),
     Compile / ifDefDeclations += "compile",
     Compile / scalacOptions ++= {
       val sv = scalaVersion.value
