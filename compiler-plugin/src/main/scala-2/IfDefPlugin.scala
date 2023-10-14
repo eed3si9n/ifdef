@@ -30,8 +30,8 @@ class IfDefPlugin(val global: Global) extends Plugin {
     class M() extends Transformer {
       override def transform(tree: Tree): Tree =
         tree match {
-          case tree: ClassDef => transformDefn(tree.mods.annotations)(tree)
-          case _              => super.transform(tree)
+          case tree: MemberDef => transformDefn(tree.mods.annotations)(tree)
+          case _               => super.transform(tree)
         }
 
       def transformDefn(annots: List[Tree])(tree: Tree): Tree =

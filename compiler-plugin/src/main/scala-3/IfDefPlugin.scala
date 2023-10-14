@@ -43,11 +43,10 @@ class IfDefPhase extends PluginPhase:
   class M extends UntypedTreeMap:
     override def transform(tree: Tree)(using Context): Tree =
       tree match
-        case tree: TypeDef => transformTypeDef(tree)
+        case tree: DefTree => transformDefn(tree.mods.annotations)(tree)
         case _             => super.transform(tree)
 
-    def transformTypeDef(tree: TypeDef)(using Context): Tree =
-      val annots = tree.mods.annotations
+    def transformDefn(annots: List[Tree])(tree: Tree)(using Context): Tree =
       annots.map(extractArg).collectFirst {
         case Some(arg) =>
           if keys(arg) then super.transform(tree)
