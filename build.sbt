@@ -8,7 +8,7 @@ ThisBuild / scalaVersion := scala213
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
-  .aggregate(plugin, macros, `compiler-plugin`)
+  .aggregate(annotation, plugin, macros, `compiler-plugin`)
   .settings(
     name := "ifdef root",
     publish / skip := true,
