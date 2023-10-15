@@ -1,17 +1,36 @@
 val scala212 = "2.12.18"
 val scala213 = "2.13.12"
-val scala3 = "3.4.0-RC1-bin-20231010-7dc9798-NIGHTLY"
+val scala3 = "3.3.0"
 
-ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / version := "0.2.0-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
-ThisBuild / scalaVersion := scala212
+ThisBuild / scalaVersion := scala213
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
-  .aggregate(plugin, macros)
+  .aggregate(annotation, plugin, macros, `compiler-plugin`)
   .settings(
     name := "ifdef root",
     publish / skip := true,
     crossScalaVersions := Nil,
+  )
+
+lazy val annotation = project
+  .settings(
+    name := "ifdef-annotation",
+    scalaVersion := scala213,
+    crossScalaVersions := List(scala212, scala213, scala3),
+  )
+
+lazy val `compiler-plugin` = project
+  .settings(
+    name := "ifdef-plugin",
+    crossScalaVersions := List(scala212, scala213, scala3),
+    libraryDependencies ++= {
+      val sv = scalaVersion.value
+      if (scalaVersion.value.startsWith("3.")) List("org.scala-lang" %% "scala3-compiler" % sv % Provided)
+      else List("org.scala-lang" % "scala-compiler" % sv % Provided)
+    },
   )
 
 lazy val plugin = project
@@ -25,6 +44,7 @@ lazy val plugin = project
         case "2.12" => "1.5.8"
       }
     },
+    scriptedBufferLog := false,
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
     },
@@ -35,9 +55,10 @@ lazy val plugin = project
 lazy val macros = project
   .settings(
     name := "ifdef-macro",
-    crossScalaVersions := List(scala213, scala212, scala3),
+    crossScalaVersions := List(scala213, scala212),
     Compile / scalacOptions ++= {
       if (scalaVersion.value.startsWith("2.13")) List("-Ymacro-annotations")
+      else if (scalaVersion.value.startsWith("3.")) List("-Xcheck-macros", "-Ycheck:all")
       else Nil
     },
     libraryDependencies ++= {
@@ -66,3 +87,9 @@ ThisBuild / publishTo := {
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 ThisBuild / publishMavenStyle := true
+ThisBuild / githubWorkflowPublishTargetBranches := Nil
+ThisBuild / githubWorkflowBuildSbtStepPreamble := List("-v")
+ThisBuild / githubWorkflowBuild := List(
+  WorkflowStep.Sbt(List("+publishLocal")),
+  WorkflowStep.Sbt(List("test", "scripted")),
+)

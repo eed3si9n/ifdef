@@ -1,0 +1,4 @@
+<plugin>
+  <name>ifdef</name>
+  <classname>com.eed3si9n.ifdef.ifdefplugin.IfDefPlugin</classname>
+</plugin>

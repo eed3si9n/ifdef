@@ -11,31 +11,13 @@ object IfDefPlugin extends AutoPlugin {
 
   object autoImport extends IfDefKeys
   import autoImport._
-  override lazy val globalSettings: Seq[Def.Setting[_]] = Seq(
+  lazy val ifDefVersion = BuildInfo.version
+  override lazy val globalSettings: Seq[Def.Setting[_]] = List(
     ifDefDeclations := Nil,
   )
-  override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
-    Compile / scalacOptions ++= {
-      if (scalaVersion.value.startsWith("2.13")) List("-Ymacro-annotations")
-      else Nil
-    },
-    libraryDependencies += "com.eed3si9n.ifdef" %% "ifdef-macro" % BuildInfo.version,
-    libraryDependencies ++= {
-      if (scalaVersion.value.startsWith("2.12.")) List(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
-      else Nil
-    },
-    Compile / ifDefDeclations += "compile",
-    Compile / scalacOptions ++= {
-      val sv = scalaVersion.value
-      val decls = (Compile / ifDefDeclations).value
-      toMacroSettings(sv, decls.toList)
-    },
-    Test / ifDefDeclations += "test",
-    Test / scalacOptions ++= {
-      val sv = scalaVersion.value
-      val decls = (Test / ifDefDeclations).value
-      toMacroSettings(sv, decls.toList)
-    },
+  override lazy val projectSettings: Seq[Def.Setting[_]] = List(
+    libraryDependencies += "com.eed3si9n.ifdef" %% "ifdef-annotation" % ifDefVersion % Provided,
+    libraryDependencies += compilerPlugin("com.eed3si9n.ifdef" %% "ifdef-plugin" % ifDefVersion),
     Test / managedSources ++= (Compile / sources).value,
     Test / internalDependencyClasspath := {
       val orig = (Test / internalDependencyClasspath).value
@@ -43,6 +25,30 @@ object IfDefPlugin extends AutoPlugin {
       orig.filter { x =>
         x.data != compileOut
       }
+    },
+  ) ++
+    inConfig(Compile)(configurationSettings) ++
+    inConfig(Test)(configurationSettings)
+
+  lazy val configurationSettings: Seq[Def.Setting[_]] = List(
+    ifDefDeclations := {
+      val sbv = scalaBinaryVersion.value
+      List(
+        configuration.value.name,
+        s"scalaBinaryVersion:$sbv",
+      )
+    },
+    scalacOptions --= {
+      val sv = scalaVersion.value
+      val ancestors = ancestorConfigs(configuration.value)
+      ancestors.flatMap { a =>
+        toMacroSettings(sv, List(a.name))
+      }
+    },
+    scalacOptions ++= {
+      val sv = scalaVersion.value
+      val decls = ifDefDeclations.value
+      toMacroSettings(sv, decls.toList)
     },
   )
 
@@ -55,6 +61,12 @@ object IfDefPlugin extends AutoPlugin {
       decls.flatMap { decl =>
         List(s"-Xmacro-settings:$macroSetting$decl")
       }
+  }
+
+  private def ancestorConfigs(config: Configuration) = {
+    def ancestors(configs: Vector[Configuration]): Vector[Configuration] =
+      configs ++ configs.flatMap(conf => ancestors(conf.extendsConfigs))
+    ancestors(config.extendsConfigs)
   }
 }
 
