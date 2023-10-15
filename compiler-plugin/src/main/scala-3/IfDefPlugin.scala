@@ -40,23 +40,44 @@ class IfDefPhase extends PluginPhase:
   import dotty.tools.dotc.ast.untpd
   import untpd.*
 
+  val IfDefName = Names.termName("ifdef").toTypeName
+  val IfNDefName = Names.termName("ifndef").toTypeName
   class M extends UntypedTreeMap:
+    val eval = IfDefExpr.eval(keys)
     override def transform(tree: Tree)(using Context): Tree =
       tree match
         case tree: DefTree => transformDefn(tree.mods.annotations)(tree)
         case _             => super.transform(tree)
 
+    // transform any definitions, includinng classes and `def`s
     def transformDefn(annots: List[Tree])(tree: Tree)(using Context): Tree =
-      annots.map(extractArg).collectFirst {
-        case Some(arg) =>
-          if keys(arg) then super.transform(tree)
+      annots.iterator.map(extractAnnotation).collectFirst {
+        case Some(expr) =>
+          if eval(expr) then super.transform(tree)
           else EmptyTree
       }.getOrElse(super.transform(tree))
 
-  def extractArg(annot: Tree)(using Context): Option[String] =
-    val IfDef = Names.termName("ifdef").toTypeName
+  def extractAnnotation(annot: Tree)(using ctx: Context): Option[IfDefExpr] =
     annot match
-      case Apply(Select(New(Ident(IfDef)), _), List(Literal(Constant(arg)))) =>
-        Some(arg.toString)
+      case Apply(Select(New(Ident(IfDefName)), _), List(arg)) =>
+        Some(IfDefExpr.IfDef(extractLiteral(arg)))
+      case Apply(Select(New(Ident(IfNDefName)), _), List(arg)) =>
+        Some(IfDefExpr.IfNDef(extractLiteral(arg)))
       case _ => None
+
+  def extractLiteral(arg: Tree): String =
+    arg match
+      case Literal(Constant(x)) => x.toString
+      case _                    => sys.error(s"invalid arg $arg")
 end IfDefPhase
+
+enum IfDefExpr:
+  case IfDef(arg: String)
+  case IfNDef(arg: String)
+
+object IfDefExpr:
+  def eval(env: Set[String])(expr: IfDefExpr): Boolean =
+    expr match
+      case IfDefExpr.IfDef(arg)  => env(arg)
+      case IfDefExpr.IfNDef(arg) => !env(arg)
+end IfDefExpr

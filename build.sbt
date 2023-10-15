@@ -5,6 +5,7 @@ val scala3 = "3.3.0"
 ThisBuild / version := "0.2.0-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
 ThisBuild / scalaVersion := scala213
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
   .aggregate(plugin, macros, `compiler-plugin`)
@@ -43,6 +44,7 @@ lazy val plugin = project
         case "2.12" => "1.5.8"
       }
     },
+    scriptedBufferLog := false,
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
     },
