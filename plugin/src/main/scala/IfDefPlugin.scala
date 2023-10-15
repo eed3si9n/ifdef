@@ -31,7 +31,13 @@ object IfDefPlugin extends AutoPlugin {
     inConfig(Test)(configurationSettings)
 
   lazy val configurationSettings: Seq[Def.Setting[_]] = List(
-    ifDefDeclations := List(configuration.value.name),
+    ifDefDeclations := {
+      val sbv = scalaBinaryVersion.value
+      List(
+        configuration.value.name,
+        s"scalaBinaryVersion:$sbv",
+      )
+    },
     scalacOptions --= {
       val sv = scalaVersion.value
       val ancestors = ancestorConfigs(configuration.value)
