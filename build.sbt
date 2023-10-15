@@ -87,3 +87,9 @@ ThisBuild / publishTo := {
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 ThisBuild / publishMavenStyle := true
+ThisBuild / githubWorkflowPublishTargetBranches := Nil
+ThisBuild / githubWorkflowBuildSbtStepPreamble := List("-v")
+ThisBuild / githubWorkflowBuild := List(
+  WorkflowStep.Sbt(List("+publishLocal")),
+  WorkflowStep.Sbt(List("test", "scripted")),
+)
