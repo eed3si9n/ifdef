@@ -1,7 +1,9 @@
 ifdef
 =====
 
-`@ifdef` is an **experimental** macro that implements conditional compilation.
+`@ifdef` is an annotation that implements conditional compilation in Scala.
+
+See https://eed3si9n.com/ifdef-in-scala-via-pre-typer-processing/ for details.
 
 setup
 -----
@@ -31,3 +33,7 @@ class ATest extends munit.FunSuite {
   }
 }
 ```
+
+license
+-------
+ifdef is released under Apache License Version 2.0.
