@@ -1,6 +1,6 @@
 val scala212 = "2.12.18"
 val scala213 = "2.13.12"
-val scala3 = "3.3.0"
+val scala3 = "3.4.2"
 
 ThisBuild / version := "0.2.0-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
@@ -8,14 +8,14 @@ ThisBuild / scalaVersion := scala213
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
-  .aggregate(annotation, plugin, macros, `compiler-plugin`)
+  .aggregate(annotation.jvm, annotation.js, plugin, macros, `compiler-plugin`)
   .settings(
     name := "ifdef root",
     publish / skip := true,
     crossScalaVersions := Nil,
   )
 
-lazy val annotation = project
+lazy val annotation = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "ifdef-annotation",
     scalaVersion := scala213,
