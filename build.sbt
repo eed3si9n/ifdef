@@ -8,7 +8,10 @@ ThisBuild / scalaVersion := scala213
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
-  .aggregate(annotation.projectRefs ++ Seq[ProjectReference](plugin, macros, `compiler-plugin`):_*)
+  .aggregate(annotation.projectRefs ++
+    `compiler-plugin`.projectRefs ++
+    macros.projectRefs ++
+    Seq[ProjectReference](plugin):_*)
   .settings(
     name := "ifdef root",
     publish / skip := true,
@@ -21,17 +24,18 @@ lazy val annotation = (projectMatrix in file("annotation"))
   )
   .jvmPlatform(scalaVersions = Seq(scala212, scala213, scala3))
   .jsPlatform(scalaVersions = Seq(scala212, scala213, scala3))
+  .nativePlatform(scalaVersions = Seq(scala212, scala213, scala3))
 
-lazy val `compiler-plugin` = project
+lazy val `compiler-plugin` = (projectMatrix in file("compiler-plugin"))
   .settings(
     name := "ifdef-plugin",
-    crossScalaVersions := List(scala212, scala213, scala3),
     libraryDependencies ++= {
       val sv = scalaVersion.value
       if (scalaVersion.value.startsWith("3.")) List("org.scala-lang" %% "scala3-compiler" % sv % Provided)
       else List("org.scala-lang" % "scala-compiler" % sv % Provided)
     },
   )
+  .jvmPlatform(scalaVersions = Seq(scala212, scala213, scala3))
 
 lazy val plugin = project
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
@@ -52,10 +56,9 @@ lazy val plugin = project
     buildInfoPackage := "com.eed3si9n.ifdef.sbtifdef",
   )
 
-lazy val macros = project
+lazy val macros = (projectMatrix in file("macros"))
   .settings(
     name := "ifdef-macro",
-    crossScalaVersions := List(scala213, scala212),
     Compile / scalacOptions ++= {
       if (scalaVersion.value.startsWith("2.13")) List("-Ymacro-annotations")
       else if (scalaVersion.value.startsWith("3.")) List("-Xcheck-macros", "-Ycheck:all")
@@ -70,6 +73,7 @@ lazy val macros = project
       else Nil
     },
   )
+  .jvmPlatform(scalaVersions = Seq(scala212, scala213))
 
 ThisBuild / organizationName := "eed3si9n"
 ThisBuild / organizationHomepage := Some(url("http://eed3si9n.com/"))
@@ -90,6 +94,6 @@ ThisBuild / publishMavenStyle := true
 ThisBuild / githubWorkflowPublishTargetBranches := Nil
 ThisBuild / githubWorkflowBuildSbtStepPreamble := List("-v")
 ThisBuild / githubWorkflowBuild := List(
-  WorkflowStep.Sbt(List("+publishLocal")),
+  WorkflowStep.Sbt(List("publishLocal")),
   WorkflowStep.Sbt(List("test", "scripted")),
 )

@@ -3,6 +3,9 @@ package example
 import com.eed3si9n.ifdef.ifdef
 
 class A {
+  @ifdef("scalaBinaryVersion:2.12")
+  def foo: String = "2.12"
+
   @ifdef("scalaBinaryVersion:2.13")
   def foo: String = "2.13"
 
@@ -14,6 +17,7 @@ class A {
 class ATest extends munit.FunSuite {
   test("foo") {
     val actual = new A().foo
-    assert(Set("3", "2.13")(actual))
+    assert(Set("3", "2.13", "2.12")(actual))
+    // assert(1 == 2)
   }
 }
