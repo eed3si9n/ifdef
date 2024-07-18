@@ -18,8 +18,6 @@ lazy val root = (project in file("."))
 lazy val annotation = (projectMatrix in file("annotation"))
   .settings(
     name := "ifdef-annotation",
-    scalaVersion := scala213,
-    crossScalaVersions := List(scala212, scala213, scala3),
   )
   .jvmPlatform(scalaVersions = Seq(scala212, scala213, scala3))
   .jsPlatform(scalaVersions = Seq(scala212, scala213, scala3))
