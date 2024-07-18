@@ -45,6 +45,6 @@ jobs:
       - name: Check that workflows are up to date
         run: sbt -v githubWorkflowCheck
 
-      - run: sbt -v +publishLocal
+      - run: sbt -v publishLocal
 
       - run: sbt -v test scripted
