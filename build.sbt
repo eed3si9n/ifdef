@@ -8,19 +8,19 @@ ThisBuild / scalaVersion := scala213
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
-  .aggregate(annotation, plugin, macros, `compiler-plugin`)
+  .aggregate(annotation.projectRefs ++ Seq[ProjectReference](plugin, macros, `compiler-plugin`):_*)
   .settings(
     name := "ifdef root",
     publish / skip := true,
     crossScalaVersions := Nil,
   )
 
-lazy val annotation = project
+lazy val annotation = (projectMatrix in file("annotation"))
   .settings(
     name := "ifdef-annotation",
-    scalaVersion := scala213,
-    crossScalaVersions := List(scala212, scala213, scala3),
   )
+  .jvmPlatform(scalaVersions = Seq(scala212, scala213, scala3))
+  .jsPlatform(scalaVersions = Seq(scala212, scala213, scala3))
 
 lazy val `compiler-plugin` = project
   .settings(
