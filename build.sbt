@@ -1,6 +1,6 @@
-val scala212 = "2.12.18"
-val scala213 = "2.13.12"
-val scala3 = "3.3.0"
+val scala212 = "2.12.19"
+val scala213 = "2.13.14"
+val scala3 = "3.3.3"
 
 ThisBuild / version := "0.2.0-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
