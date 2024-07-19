@@ -40,9 +40,11 @@ object IfDefPlugin extends AutoPlugin {
     },
     scalacOptions --= {
       val sv = scalaVersion.value
-      val ancestors = ancestorConfigs(configuration.value)
-      ancestors.flatMap { a =>
-        toMacroSettings(sv, List(a.name))
+      val c = configuration.value
+      val decls = (Compile / ifDefDeclations).value
+      c match {
+        case Test => toMacroSettings(sv, decls.toList)
+        case _    => Nil
       }
     },
     scalacOptions ++= {
