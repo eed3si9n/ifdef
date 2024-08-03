@@ -49,7 +49,7 @@ class IfDefPhase extends PluginPhase:
         case tree: DefTree => transformDefn(tree.mods.annotations)(tree)
         case _             => super.transform(tree)
 
-    // transform any definitions, includinng classes and `def`s
+    // transform any definitions, including classes and `def`s
     def transformDefn(annots: List[Tree])(tree: Tree)(using Context): Tree =
       annots.iterator.map(extractAnnotation).collectFirst {
         case Some(expr) =>

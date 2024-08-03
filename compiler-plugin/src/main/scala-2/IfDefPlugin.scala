@@ -35,7 +35,7 @@ class IfDefPlugin(val global: Global) extends Plugin {
           case _               => super.transform(tree)
         }
 
-      // transform any definitions, includinng classes and `def`s
+      // transform any definitions, including classes and `def`s
       def transformDefn(annots: List[Tree])(tree: Tree): Tree =
         annots.iterator.map(extractAnnotation).collectFirst {
           case Some(expr) =>
