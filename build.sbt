@@ -1,6 +1,7 @@
 val scala212 = "2.12.19"
 val scala213 = "2.13.14"
 val scala3 = "3.3.3"
+val scala3_sbt2 = "3.6.2"
 
 ThisBuild / version := "0.2.0-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
@@ -11,7 +12,7 @@ lazy val root = (project in file("."))
   .aggregate(annotation.projectRefs ++
     `compiler-plugin`.projectRefs ++
     macros.projectRefs ++
-    Seq[ProjectReference](plugin):_*)
+    plugin.projectRefs:_*)
   .settings(
     name := "ifdef root",
     publish / skip := true,
@@ -37,15 +38,20 @@ lazy val `compiler-plugin` = (projectMatrix in file("compiler-plugin"))
   )
   .jvmPlatform(scalaVersions = Seq(scala212, scala213, scala3))
 
-lazy val plugin = project
+lazy val plugin = (projectMatrix in file("plugin"))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
     name := "sbt-ifdef",
-    scalaVersion := scala212,
-    crossScalaVersions := List(scala212),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.8"
+        case _      => "2.0.0-M3"
+      }
+    },
+    scriptedSbt := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.10.7"
+        case _      => (pluginCrossBuild / sbtVersion).value
       }
     },
     scriptedBufferLog := false,
@@ -55,6 +61,7 @@ lazy val plugin = project
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.eed3si9n.ifdef.sbtifdef",
   )
+  .jvmPlatform(scalaVersions = Seq(scala212, scala3_sbt2))
 
 lazy val macros = (projectMatrix in file("macros"))
   .settings(
@@ -95,5 +102,5 @@ ThisBuild / githubWorkflowPublishTargetBranches := Nil
 ThisBuild / githubWorkflowBuildSbtStepPreamble := List("-v")
 ThisBuild / githubWorkflowBuild := List(
   WorkflowStep.Sbt(List("publishLocal")),
-  WorkflowStep.Sbt(List("test", "scripted")),
+  WorkflowStep.Sbt(List("test", "scripted sbt-ifdef/*", "plugin2_12/scripted sbt1/*")),
 )

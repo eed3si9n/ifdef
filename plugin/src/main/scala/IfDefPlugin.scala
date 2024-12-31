@@ -12,10 +12,10 @@ object IfDefPlugin extends AutoPlugin {
   object autoImport extends IfDefKeys
   import autoImport._
   lazy val ifDefVersion = BuildInfo.version
-  override lazy val globalSettings: Seq[Def.Setting[_]] = List(
+  override lazy val globalSettings: Seq[Def.Setting[?]] = List(
     ifDefDeclarations := Nil,
   )
-  override lazy val projectSettings: Seq[Def.Setting[_]] = List(
+  override lazy val projectSettings: Seq[Def.Setting[?]] = List(
     libraryDependencies += "com.eed3si9n.ifdef" %% "ifdef-annotation" % ifDefVersion % Provided,
     libraryDependencies += compilerPlugin("com.eed3si9n.ifdef" %% "ifdef-plugin" % ifDefVersion),
     Test / managedSources ++= (Compile / sources).value,
@@ -30,7 +30,7 @@ object IfDefPlugin extends AutoPlugin {
     inConfig(Compile)(configurationSettings) ++
     inConfig(Test)(configurationSettings)
 
-  lazy val configurationSettings: Seq[Def.Setting[_]] = List(
+  lazy val configurationSettings: Seq[Def.Setting[?]] = List(
     ifDefDeclarations := {
       val sbv = scalaBinaryVersion.value
       List(
@@ -38,13 +38,14 @@ object IfDefPlugin extends AutoPlugin {
         s"scalaBinaryVersion:$sbv",
       )
     },
-    scalacOptions --= {
+    scalacOptions := {
+      val orig = scalacOptions.value
       val sv = scalaVersion.value
       val c = configuration.value
       val decls = (Compile / ifDefDeclarations).value
       c match {
-        case Test => toMacroSettings(sv, decls.toList)
-        case _    => Nil
+        case Test => orig diff toMacroSettings(sv, decls.toList)
+        case _    => orig
       }
     },
     scalacOptions ++= {
