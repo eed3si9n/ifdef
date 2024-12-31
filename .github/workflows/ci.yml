@@ -47,4 +47,4 @@ jobs:
 
       - run: sbt -v publishLocal
 
-      - run: sbt -v test scripted
+      - run: sbt -v test 'scripted sbt-ifdef/*' 'plugin2_12/scripted sbt1/*'
