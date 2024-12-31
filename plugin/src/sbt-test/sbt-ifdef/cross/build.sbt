@@ -11,7 +11,7 @@ lazy val root = (project in file("."))
   )
 
 TaskKey[Unit]("check") := {
-  val x = (Test / ifDefDeclations).value
+  val x = (Test / ifDefDeclarations).value
   // sys.error(x.toString)
 }
 

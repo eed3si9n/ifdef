@@ -5,5 +5,5 @@ ThisBuild / scalaVersion := scala213
 ThisBuild / crossScalaVersions := List(scala213, scala212, scala3)
 libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
 TaskKey[Unit]("check") := {
-  val x = (Test / ifDefDeclations).value
+  val x = (Test / ifDefDeclarations).value
 }

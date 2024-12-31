@@ -1,3 +1,3 @@
-> show Test / ifDefDeclations
+> show Test / ifDefDeclarations
 > show Test / scalacOptions
 > test
