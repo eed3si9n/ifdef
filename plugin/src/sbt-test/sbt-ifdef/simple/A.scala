@@ -10,6 +10,9 @@ class A {
 
   @ifdef("test")
   def bar: Int = 2
+  
+  @ifdef("eap")
+  def earlyAccess: Boolean = true
 }
 
 @ifdef("test")
@@ -23,6 +26,12 @@ class ATest extends munit.FunSuite {
   test("bar") {
     val actual = new A().bar
     val expected = 2
+    assertEquals(actual, expected)
+  }
+  
+  test("earlyAccess") {
+    val actual = new A().earlyAccess
+    val expected = true
     assertEquals(actual, expected)
   }
 }

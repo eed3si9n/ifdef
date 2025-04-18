@@ -33,10 +33,11 @@ object IfDefPlugin extends AutoPlugin {
   lazy val configurationSettings: Seq[Def.Setting[?]] = List(
     ifDefDeclarations := {
       val sbv = scalaBinaryVersion.value
-      List(
+      val defaults = List(
         configuration.value.name,
         s"scalaBinaryVersion:$sbv",
       )
+      defaults ++ (ThisBuild / ifDefDeclarations).?.value.getOrElse(Nil)
     },
     scalacOptions := {
       val orig = scalacOptions.value
