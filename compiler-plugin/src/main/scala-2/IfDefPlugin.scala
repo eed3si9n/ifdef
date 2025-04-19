@@ -10,7 +10,7 @@ class IfDefPlugin(val global: Global) extends Plugin {
   import global._
 
   val name = "ifdef"
-  val description = "checks for division by zero"
+  val description = "ifdef preprocessor"
   val components = List[PluginComponent](Component)
 
   private object Component extends PluginComponent {
