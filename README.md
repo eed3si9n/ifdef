@@ -34,6 +34,26 @@ class ATest extends munit.FunSuite {
 }
 ```
 
+custom definitions
+----------------
+
+You can add custom definitions in your build.sbt:
+
+```scala
+// Add a custom definition for early access features
+ThisBuild / ifDefDeclarations += "eap"
+```
+
+Then use them in your code:
+
+```scala
+// This method will only be available when "eap" is defined
+@ifdef("eap")
+def earlyAccessFeature(): Unit = {
+  // Implementation of early access feature
+}
+```
+
 license
 -------
 ifdef is released under Apache License Version 2.0.
