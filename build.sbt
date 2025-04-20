@@ -1,9 +1,9 @@
-val scala212 = "2.12.19"
-val scala213 = "2.13.14"
-val scala3 = "3.3.3"
-val scala3_sbt2 = "3.6.2"
+val scala212 = "2.12.20"
+val scala213 = "2.13.16"
+val scala3 = "3.3.5"
+val scala3_sbt2 = "3.6.4"
 
-ThisBuild / version := "0.2.0-SNAPSHOT"
+ThisBuild / version := "0.4.1-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
 ThisBuild / scalaVersion := scala213
 Global / onChangedBuildSource := ReloadOnSourceChanges
