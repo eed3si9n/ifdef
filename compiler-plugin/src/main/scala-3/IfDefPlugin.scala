@@ -20,6 +20,7 @@ class IfDefPhase extends PluginPhase:
   val phaseName = "ifDef"
   var keys: Set[String] = Set.empty
   override def runsAfter: Set[String] = Set(Parser.name)
+  override def run(using Context): Unit = ()
   override def runOn(units: List[CompilationUnit])(using ctx: Context): List[CompilationUnit] =
     val unitContexts =
       for unit <- units
