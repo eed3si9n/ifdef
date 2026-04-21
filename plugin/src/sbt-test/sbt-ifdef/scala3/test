@@ -1,3 +1,6 @@
+> show Compile / ifDefDeclarations
+> show Compile / scalacOptions
+> Compile/compile
 > show Test / ifDefDeclarations
 > show Test / scalacOptions
 > test
