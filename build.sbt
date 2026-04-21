@@ -112,3 +112,4 @@ ThisBuild / githubWorkflowBuild := List(
   WorkflowStep.Sbt(List("publishLocal")),
   WorkflowStep.Sbt(List("test", "scripted sbt-ifdef/*", "plugin2_12/scripted sbt1/*")),
 )
+ThisBuild / githubWorkflowJavaVersions := List(JavaSpec.temurin("17"))
