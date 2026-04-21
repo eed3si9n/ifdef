@@ -76,5 +76,6 @@ object IfDefPlugin extends AutoPlugin {
 }
 
 trait IfDefKeys {
+  @transient
   lazy val ifDefDeclarations = taskKey[Seq[String]]("Declarations")
 }
