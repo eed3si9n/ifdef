@@ -2,6 +2,8 @@ package com.eed3si9n.ifdef.sbtifdef
 
 import sbt.*
 import Keys.*
+import sbt.CacheImplicits.{ *, given }
+import sbtcompat.PluginCompat.{ *, given }
 
 object IfDefPlugin extends AutoPlugin {
   private final val macroSetting = "com.eed3si9n.ifdef.declare:"
@@ -31,7 +33,7 @@ object IfDefPlugin extends AutoPlugin {
     inConfig(Test)(configurationSettings)
 
   lazy val configurationSettings: Seq[Def.Setting[?]] = List(
-    ifDefDeclarations := {
+    ifDefDeclarations := Def.uncached {
       val sbv = scalaBinaryVersion.value
       val defaults = List(
         configuration.value.name,
