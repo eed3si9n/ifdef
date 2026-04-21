@@ -3,4 +3,4 @@
 > Compile/compile
 > show Test / ifDefDeclarations
 > show Test / scalacOptions
-> testFull
+> testOnly example.ATest
