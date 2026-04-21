@@ -1,6 +1,6 @@
 > check
--> test
+-> testFull
 > ++2.12.18!
--> test
+-> testFull
 > ++3.3.0!
--> test
+-> testFull
