@@ -2,6 +2,7 @@ package com.eed3si9n.ifdef.sbtifdef
 
 import sbt.*
 import Keys.*
+import sbt.CacheImplicits.{ *, given }
 
 object IfDefPlugin extends AutoPlugin {
   private final val macroSetting = "com.eed3si9n.ifdef.declare:"
