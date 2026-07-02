@@ -99,7 +99,7 @@ ThisBuild / publishTo := {
 }
 ThisBuild / publishMavenStyle := true
 ThisBuild / githubWorkflowPublishTargetBranches := Nil
-ThisBuild / githubWorkflowBuildSbtStepPreamble := List("-v")
+ThisBuild / githubWorkflowBuildSbtStepPreamble := Nil
 ThisBuild / githubWorkflowBuild := List(
   WorkflowStep.Sbt(List("publishLocal")),
   WorkflowStep.Sbt(List("test", "scripted sbt-ifdef/*", "plugin2_12/scripted sbt1/*")),
