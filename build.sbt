@@ -1,7 +1,7 @@
 val scala212 = "2.12.20"
 val scala213 = "2.13.16"
 val scala3 = "3.3.5"
-val scala3_sbt2 = "3.6.4"
+val scala3_sbt2 = "3.8.4"
 
 ThisBuild / version := "0.4.1-SNAPSHOT"
 ThisBuild / organization := "com.eed3si9n.ifdef"
@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
 lazy val annotation = (projectMatrix in file("annotation"))
   .settings(
     name := "ifdef-annotation",
+    Compile / scalacOptions += "-release:8",
   )
   .jvmPlatform(scalaVersions = Seq(scala212, scala213, scala3))
   .jsPlatform(scalaVersions = Seq(scala212, scala213, scala3))
@@ -30,6 +31,7 @@ lazy val annotation = (projectMatrix in file("annotation"))
 lazy val `compiler-plugin` = (projectMatrix in file("compiler-plugin"))
   .settings(
     name := "ifdef-plugin",
+    Compile / scalacOptions += "-release:8",
     libraryDependencies ++= {
       val sv = scalaVersion.value
       if (scalaVersion.value.startsWith("3.")) List("org.scala-lang" %% "scala3-compiler" % sv % Provided)
@@ -42,10 +44,17 @@ lazy val plugin = (projectMatrix in file("plugin"))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .settings(
     name := "sbt-ifdef",
+    Compile / scalacOptions ++= {
+      scalaBinaryVersion.value match {
+        case "2.12" => Seq("-release:8")
+        case "3"    => Nil
+      }
+    },
+    addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0"),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.8"
-        case _      => "2.0.0-M4"
+        case _      => "2.0.1"
       }
     },
     scriptedSbt := {
