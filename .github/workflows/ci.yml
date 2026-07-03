@@ -23,28 +23,28 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         scala: [2.13.16]
-        java: [zulu@8]
+        java: [zulu@17]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup Java (zulu@8)
-        if: matrix.java == 'zulu@8'
-        uses: actions/setup-java@v4
+      - name: Setup Java (zulu@17)
+        if: matrix.java == 'zulu@17'
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 8
+          java-version: 17
           cache: sbt
 
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
       - name: Check that workflows are up to date
-        run: sbt -v githubWorkflowCheck
+        run: sbt githubWorkflowCheck
 
-      - run: sbt -v publishLocal
+      - run: sbt publishLocal
 
-      - run: sbt -v test 'scripted sbt-ifdef/*' 'plugin2_12/scripted sbt1/*'
+      - run: sbt 'test; scripted sbt-ifdef/*; plugin2_12/scripted sbt1/*'
